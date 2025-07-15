@@ -82,11 +82,18 @@
 ## CI/CD & デプロイ
 
 - **GitHub Actions** で以下を自動化:
-  - プッシュ時のLintチェック (`phpstan`, `eslint`)
-  - プルリクエスト作成時のテスト (`phpunit`)
-  - `main` マージ時の自動ビルドとパッケージ生成
-- **デプロイ環境**: Windows Server + IIS
-  - IIS 10上にPHP (FastCGI) を構成し、Web DeployやPowerShellスクリプトでアプリケーションをデプロイ
-  - URL Rewrite ModuleでLaravelのルーティングを設定
-  - 環境変数として`.env.prod` をIISのアプリケーション設定（App Settings）で管理
+  - プッシュ時のLintチェック (`phpstan`, `eslint`, `stylelint`)
+  - プルリクエスト作成時のユニットテストおよび統合テスト (`phpunit`)
+  - `main` マージ時のDockerイメージビルドとContainer Registryへのプッシュ
+  - `staging`/`production` ブランチマージ時のデプロイジョブ実行
+- **デプロイ環境**: Docker Compose または Kubernetes 上のコンテナ
+  - Docker Compose ファイルにより、`app`, `web`(nginx), `db`, `redis` を構成
+  - GitHub Container Registry などのプライベートレジストリにイメージをプッシュ
+  - Docker Secrets または `.env.prod` による環境変数管理
+  - 本番環境では、`docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build` を実行
+
+## 環境変数とシークレット管理
+
+- **Vault / AWS Secrets Manager**: 本番環境の機密情報を安全に管理
+- Gitリポジトリには `.env` をコミットしない
 
