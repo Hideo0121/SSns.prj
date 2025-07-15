@@ -70,3 +70,23 @@
     php artisan serve
     ```
     ブラウザで `http://127.0.0.1:8000` にアクセスして、アプリケーションを確認してください。
+
+## 前提条件
+
+- PHP 8.1 以上
+- Composer 2.x
+- Node.js 16.x またはそれ以上
+- MySQL 5.7 以上または MariaDB 10.2 以上
+- Redis (ジョブキュー、キャッシュ用)
+
+## CI/CD & デプロイ
+
+- **GitHub Actions** で以下を自動化:
+  - プッシュ時のLintチェック (`phpstan`, `eslint`)
+  - プルリクエスト作成時のテスト (`phpunit`)
+  - `main` マージ時の自動ビルドとパッケージ生成
+- **デプロイ環境**: Windows Server + IIS
+  - IIS 10上にPHP (FastCGI) を構成し、Web DeployやPowerShellスクリプトでアプリケーションをデプロイ
+  - URL Rewrite ModuleでLaravelのルーティングを設定
+  - 環境変数として`.env.prod` をIISのアプリケーション設定（App Settings）で管理
+

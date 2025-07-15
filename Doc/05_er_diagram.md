@@ -16,6 +16,11 @@ erDiagram
         string role "全権管理者/一般管理者/スタッフ"
         string phone_number "電話番号"
         string mobile_phone_number "携帯電話番号"
+        string avatar_photo "顔写真"
+        string pc_setup_photo "PC設置環境写真"
+        string security_software_photo "セキュリティソフト稼働写真"
+        string pc_logon_screenshot "PCログオン画面"
+        string id_card_photo "身分証明書写真"
         datetime created_at
         datetime updated_at
     }
@@ -125,6 +130,7 @@ erDiagram
 ## エンティティ説明
 
 **USERS**: システムのメンバー情報。line_user_id はLINEアカウントとの紐付けに利用します。role には「全権管理者」「一般管理者」「スタッフ」の分類を保持します。phone_number (電話番号) と mobile_phone_number (携帯電話番号) を追加しました。
+さらに、メンバーの顔写真、PC設置環境写真、セキュリティソフト稼働写真、PCログオン画面のスクリーンショット、身分証明書写真を保持するフィールドを追加しました。
 
 **MESSAGES**: 個別メッセージの送受信履歴。
 
