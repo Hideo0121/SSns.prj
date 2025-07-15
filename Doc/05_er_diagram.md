@@ -9,6 +9,7 @@ erDiagram
     %% エンティティ定義
     USERS {
         int id PK
+        string user_id
         string name
         string email UK
         string password
