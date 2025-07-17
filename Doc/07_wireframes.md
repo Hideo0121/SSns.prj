@@ -77,7 +77,7 @@
 - fullWidth: true
 
 **認証・セッション管理**
-- 認証方式: Laravel Sanctum（Personal Access Token）
+- **認証方式: Laravel Sanctum（Personal Access Token）**
 - トークン有効期限: 3時間
 - トークン自動更新: アクティブ時に残り30分で自動延長
 - セッション切れ時: 自動的に認証画面へリダイレクト

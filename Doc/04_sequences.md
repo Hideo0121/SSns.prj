@@ -1,6 +1,6 @@
 # シーケンス
 
-このセクションでは、主要な機能におけるシステムとユーザー、および外部システム（LINE APIなど）とのインタラクションのシーケンス図を記述します。
+このセクションでは、主要な機能におけるシステムとユーザー、および外部システムとのインタラクションのシーケンス図を記述します。
 
 ### 登場人物（アクターとシステムコンポーネント）
 
@@ -8,7 +8,6 @@
 * **ブラウザ** (Browser): Webブラウザ。
 * **Laravel Application** (WebServer): PHP Laravelで構築されたWebアプリケーションサーバー。
 * **データベース** (Database): スタッフ情報やシステムデータを管理するデータベース。
-* **LINE Messaging API** (LineAPI): LINE公式アカウントと連携するためのAPI。
 * **メール送信サービス** (MailService): システムからメールを送信するための外部サービス（例: SendGrid, Postmarkなど）。
 
 ### ① 認証 ⇒ スタッフ検索・一覧 ⇒ スタッフ詳細画面でのメンテナンス＆登録
@@ -63,45 +62,7 @@ sequenceDiagram
     end
 ```
 
-### ② 認証 ⇒ スタッフ検索・一覧 ⇒ LINE送信画面から本文入力し送信
-
-```mermaid
-sequenceDiagram
-    participant AdminUser as 管理者
-    participant Browser
-    participant WebServer as Laravel Application
-    participant Database
-    participant LineAPI as LINE Messaging API
-
-    AdminUser->>Browser: 認証画面にアクセス (認証フローは省略)
-    Browser->>WebServer: ...
-    WebServer->>Database: ...
-    Database-->>WebServer: ...
-    WebServer->>Browser: スタッフ検索・一覧画面HTMLを返す (認証成功後)
-    AdminUser->>Browser: スタッフを検索・フィルタリング、送信対象を選択
-    Browser->>WebServer: 検索条件を送信、スタッフリスト取得要求
-    WebServer->>Database: 条件に合致するスタッフリスト取得要求
-    Database-->>WebServer: スタッフリストを返す
-    WebServer->>Browser: スタッフリストを返す
-    Browser->>AdminUser: スタッフリストを表示、送信対象を選択
-    AdminUser->>Browser: LINEメッセージ送信を選択
-    Browser->>WebServer: LINE送信画面表示要求 (送信対象スタッフ情報を含む)
-    WebServer->>Browser: LINE送信画面HTMLを返す
-    AdminUser->>Browser: メッセージ本文入力、送信ボタンをクリック
-    AdminUser->>Browser: LINE送信ボタンをクリック (最終的な送信実行)
-    Browser->>WebServer: POST /line/send (メッセージデータ, 送信対象スタッフ情報)
-    WebServer->>LineAPI: LINE Messaging API呼び出し (メッセージ送信)
-    LineAPI-->>WebServer: 送信結果を返す
-    WebServer->>Database: 送信履歴を記録
-    Database-->>WebServer: 記録完了を通知
-    WebServer->>WebServer: メンテナンスログを記録
-    WebServer->>Database: メンテナンスログ保存
-    Database-->>WebServer: ログ保存完了
-    WebServer->>Browser: 送信結果(成功/失敗)を返す
-    Browser->>AdminUser: 送信結果を表示
-```
-
-### ③ 認証 ⇒ スタッフ検索・一覧 ⇒ メール送信画面から本文入力し送信
+### ② 認証 ⇒ スタッフ検索・一覧 ⇒ メール送信画面から本文入力し送信
 
 ```mermaid
 sequenceDiagram
@@ -125,9 +86,10 @@ sequenceDiagram
     AdminUser->>Browser: メール送信を選択
     Browser->>WebServer: メール送信画面表示要求 (送信対象スタッフ情報を含む)
     WebServer->>Browser: メール送信画面HTMLを返す
-    AdminUser->>Browser: メール本文入力、送信ボタンをクリック
-    Browser->>WebServer: POST /email/send (メールデータ, 送信対象スタッフ情報)
-    WebServer->>MailService: メール送信サービス呼び出し
+    AdminUser->>Browser: メール件名・本文入力、送信ボタンをクリック
+    AdminUser->>Browser: メール送信ボタンをクリック (最終的な送信実行)
+    Browser->>WebServer: POST /mail/send (メールデータ, 送信対象スタッフ情報)
+    WebServer->>MailService: メール送信サービス呼び出し (メール送信)
     MailService-->>WebServer: 送信結果を返す
     WebServer->>Database: 送信履歴を記録
     Database-->>WebServer: 記録完了を通知
@@ -138,7 +100,7 @@ sequenceDiagram
     Browser->>AdminUser: 送信結果を表示
 ```
 
-### ④ 認証 ⇒ スタッフ検索・一覧 ⇒ 新規登録画面からエントリ（スタッフ詳細画面を流用）
+### ③ 認証 ⇒ スタッフ検索・一覧 ⇒ 新規登録画面からエントリ（スタッフ詳細画面を流用）
 
 ```mermaid
 sequenceDiagram
@@ -170,7 +132,7 @@ sequenceDiagram
     end
 ```
 
-### ⑤ 認証 ⇒ スタッフ検索・一覧 ⇒ 一括登録（CSVインポート）
+### ④ 認証 ⇒ スタッフ検索・一覧 ⇒ 一括登録（CSVインポート）
 
 ```mermaid
 sequenceDiagram
@@ -205,7 +167,7 @@ sequenceDiagram
   
 ## 非同期処理とパフォーマンス最適化
 
-* バッチ送信: LINE一括通知やメール送信はジョブキュー（Redis + Laravel Queue）で非同期実行し、ユーザー操作をブロックしない。
+* バッチ送信: メール送信はジョブキュー（Redis + Laravel Queue）で非同期実行し、ユーザー操作をブロックしない。
 * 進捗表示: 長時間ジョブの進捗はWebSocket（Laravel Echo）でフロントエンドにリアルタイム通知。
 * キャッシュ: 頻繁に参照するスタッフ一覧や設定情報はRedisキャッシュを利用し、DB負荷を軽減。
 * 負荷試験: k6やJMeterを使用した負荷試験プランを作成し、ピーク時の性能を検証。
