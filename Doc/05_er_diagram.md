@@ -13,7 +13,6 @@ erDiagram
         string name
         string email UK
         string password
-        string line_user_id "LINEアカウント紐付け用"
         string role "全権管理者/一般管理者/スタッフ"
         string phone_number "電話番号"
         string mobile_phone_number "携帯電話番号"
@@ -61,15 +60,6 @@ erDiagram
         datetime updated_at
     }
 
-    LINE_BROADCAST_MESSAGES {
-        int id PK
-        int admin_user_id FK
-        string message_content
-        datetime sent_at
-        string status
-        string line_response_id
-    }
-
     EMAIL_BROADCAST_MESSAGES {
         int id PK
         int admin_user_id FK
@@ -77,11 +67,6 @@ erDiagram
         string body
         datetime sent_at
         string status
-    }
-
-    LINE_BROADCAST_TARGETS {
-        int broadcast_id FK
-        int user_code FK
     }
 
     EMAIL_BROADCAST_TARGETS {
@@ -113,7 +98,6 @@ erDiagram
     USERS ||--o{ THREADS : "creates"
     USERS ||--o{ COMMENTS : "posts"
     USERS ||--o{ FAVORITES : "has"
-    USERS ||--o{ LINE_BROADCAST_MESSAGES : "sends"
     USERS ||--o{ EMAIL_BROADCAST_MESSAGES : "sends"
     USERS ||--o{ MAINTENANCE_LOGS : "performs"
     
@@ -121,16 +105,14 @@ erDiagram
     THREADS ||--o{ FAVORITES : "can be favorited"
     THREADS }o--|| CATEGORIES : "belongs to"
     
-    LINE_BROADCAST_MESSAGES ||--o{ LINE_BROADCAST_TARGETS : "includes"
     EMAIL_BROADCAST_MESSAGES ||--o{ EMAIL_BROADCAST_TARGETS : "includes"
     
-    USERS ||--o{ LINE_BROADCAST_TARGETS : "targeted by"
     USERS ||--o{ EMAIL_BROADCAST_TARGETS : "targeted by"
 ```
 
 ## エンティティ説明
 
-**USERS**: システムのメンバー情報。line_user_id はLINEアカウントとの紐付けに利用します。role には「全権管理者」「一般管理者」「スタッフ」の分類を保持します。phone_number (電話番号) と mobile_phone_number (携帯電話番号) を追加しました。
+**USERS**: システムのメンバー情報。role には「全権管理者」「一般管理者」「スタッフ」の分類を保持します。phone_number (電話番号) と mobile_phone_number (携帯電話番号) を追加しました。
 さらに、メンバーの顔写真、PC設置環境写真、セキュリティソフト稼働写真、PCログオン画面のスクリーンショット、身分証明書写真を保持するフィールドを追加しました。
 
 **MESSAGES**: 個別メッセージの送受信履歴。
@@ -141,11 +123,7 @@ erDiagram
 
 **CATEGORIES**: 掲示板トピックのカテゴリ。
 
-**LINE_BROADCAST_MESSAGES**: LINE一括送信メッセージの履歴。どの管理者が送信したか(admin_user_id)、送信結果(status)、LINEからのレスポンスIDなどを記録します。
-
-**EMAIL_BROADCAST_MESSAGES**: メール一括送信メッセージの履歴。同様に送信した管理者や送信結果を記録します。
-
-**LINE_BROADCAST_TARGETS**: LINE一括送信メッセージが誰に送られたかを記録する中間テーブル（多対多のリレーション）。
+**EMAIL_BROADCAST_MESSAGES**: メール一括送信メッセージの履歴。どの管理者が送信したか(admin_user_id)、送信結果(status)などを記録します。
 
 **EMAIL_BROADCAST_TARGETS**: メール一括送信メッセージが誰に送られたかを記録する中間テーブル（多対多のリレーション）。
 
