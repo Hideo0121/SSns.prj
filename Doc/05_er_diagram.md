@@ -9,7 +9,7 @@ erDiagram
     %% エンティティ定義
     USERS {
         int id PK
-        string user_id
+        string user_code
         string name
         string email UK
         string password
@@ -37,7 +37,7 @@ erDiagram
 
     THREADS {
         int id PK
-        int user_id FK
+        int user_code FK
         string title
         string content
         int category_id FK
@@ -48,7 +48,7 @@ erDiagram
     COMMENTS {
         int id PK
         int thread_id FK
-        int user_id FK
+        int user_code FK
         string content
         datetime created_at
         datetime updated_at
@@ -81,17 +81,17 @@ erDiagram
 
     LINE_BROADCAST_TARGETS {
         int broadcast_id FK
-        int user_id FK
+        int user_code FK
     }
 
     EMAIL_BROADCAST_TARGETS {
         int broadcast_id FK
-        int user_id FK
+        int user_code FK
     }
 
     MAINTENANCE_LOGS {
         int id PK
-        int user_id FK
+        int user_code FK
         string action_type
         string target_table
         int target_id
@@ -103,7 +103,7 @@ erDiagram
 
     FAVORITES {
         int id PK
-        int user_id FK
+        int user_code FK
         int thread_id FK
         datetime created_at
     }
@@ -149,6 +149,6 @@ erDiagram
 
 **EMAIL_BROADCAST_TARGETS**: メール一括送信メッセージが誰に送られたかを記録する中間テーブル（多対多のリレーション）。
 
-**MAINTENANCE_LOGS**: システムのメンテナンス履歴を記録するログテーブル。誰が(user_id)、いつ(created_at)、何を(action_type)、どのデータ(target_table, target_id)に対して、どのように(old_data, new_data)操作したかを記録します。操作元のIPアドレスも記録することで、セキュリティ監査に役立てます。
+**MAINTENANCE_LOGS**: システムのメンテナンス履歴を記録するログテーブル。誰が(user_code)、いつ(created_at)、何を(action_type)、どのデータ(target_table, target_id)に対して、どのように(old_data, new_data)操作したかを記録します。操作元のIPアドレスも記録することで、セキュリティ監査に役立てます。
 
-**FAVORITES**: ユーザーが掲示板の記事をお気に入り登録した履歴を管理するテーブル。user_id と thread_id の組み合わせで、どのユーザーがどの記事をお気に入り登録したかを記録します。
+**FAVORITES**: ユーザーが掲示板の記事をお気に入り登録した履歴を管理するテーブル。user_code と thread_id の組み合わせで、どのユーザーがどの記事をお気に入り登録したかを記録します。
