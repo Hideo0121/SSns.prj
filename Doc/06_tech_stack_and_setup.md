@@ -483,6 +483,510 @@ export const AuthProvider = ({ children }) => {
 };
 ```
 
+### 9. セキュリティ強化機能の実装
+
+**resources/js/hooks/useSecurityControl.js:**
+```javascript
+import { useEffect, useCallback } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+
+export const useSecurityControl = () => {
+    const { user, logout } = useAuth();
+
+    // セキュリティ違反時の処理
+    const handleSecurityViolation = useCallback(() => {
+        // トークンを破棄
+        localStorage.removeItem('auth_token');
+        
+        // ログアウト処理
+        logout();
+        
+        // エラーページへ遷移
+        window.location.href = '/security-error';
+    }, [logout]);
+
+    // ページ複製禁止
+    const preventPageDuplication = useCallback(() => {
+        // 新しいウィンドウ・タブの開始を禁止
+        window.addEventListener('beforeunload', (e) => {
+            if (user) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // 右クリックメニューを禁止
+        document.addEventListener('contextmenu', (e) => {
+            if (user) {
+                e.preventDefault();
+            }
+        });
+
+        // キーボードショートカット禁止
+        document.addEventListener('keydown', (e) => {
+            if (user) {
+                // Ctrl+N (新しいウィンドウ)
+                if (e.ctrlKey && e.key === 'n') {
+                    e.preventDefault();
+                    handleSecurityViolation();
+                }
+                // Ctrl+T (新しいタブ)
+                if (e.ctrlKey && e.key === 't') {
+                    e.preventDefault();
+                    handleSecurityViolation();
+                }
+                // Ctrl+Shift+N (新しいプライベートウィンドウ)
+                if (e.ctrlKey && e.shiftKey && e.key === 'N') {
+                    e.preventDefault();
+                    handleSecurityViolation();
+                }
+                // F12 (開発者ツール)
+                if (e.key === 'F12') {
+                    e.preventDefault();
+                    handleSecurityViolation();
+                }
+                // Ctrl+Shift+I (開発者ツール)
+                if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+                    e.preventDefault();
+                    handleSecurityViolation();
+                }
+            }
+        });
+    }, [user, handleSecurityViolation]);
+
+    // リロード機能禁止
+    const preventReload = useCallback(() => {
+        // F5キー、Ctrl+R を禁止
+        document.addEventListener('keydown', (e) => {
+            if (user) {
+                if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
+                    e.preventDefault();
+                    handleSecurityViolation();
+                }
+            }
+        });
+
+        // ブラウザの戻る/進むボタンを無効化
+        window.history.pushState(null, null, window.location.href);
+        window.addEventListener('popstate', () => {
+            if (user) {
+                window.history.pushState(null, null, window.location.href);
+                handleSecurityViolation();
+            }
+        });
+    }, [user, handleSecurityViolation]);
+
+    // 非認証状態での認証以外ページ表示禁止
+    const preventUnauthorizedAccess = useCallback(() => {
+        const currentPath = window.location.pathname;
+        const allowedPaths = ['/login', '/security-error'];
+        
+        if (!user && !allowedPaths.includes(currentPath)) {
+            handleSecurityViolation();
+        }
+    }, [user, handleSecurityViolation]);
+
+    // タブフォーカス監視
+    const monitorTabFocus = useCallback(() => {
+        let isTabActive = true;
+        
+        document.addEventListener('visibilitychange', () => {
+            if (user) {
+                if (document.hidden) {
+                    isTabActive = false;
+                } else {
+                    if (!isTabActive) {
+                        // タブが非アクティブだった場合、セキュリティ違反とみなす
+                        handleSecurityViolation();
+                    }
+                    isTabActive = true;
+                }
+            }
+        });
+
+        // ウィンドウフォーカス監視
+        window.addEventListener('blur', () => {
+            if (user) {
+                setTimeout(() => {
+                    if (!document.hasFocus()) {
+                        handleSecurityViolation();
+                    }
+                }, 100);
+            }
+        });
+    }, [user, handleSecurityViolation]);
+
+    useEffect(() => {
+        preventPageDuplication();
+        preventReload();
+        preventUnauthorizedAccess();
+        monitorTabFocus();
+
+        // クリーンアップ
+        return () => {
+            window.removeEventListener('beforeunload', () => {});
+            document.removeEventListener('contextmenu', () => {});
+            document.removeEventListener('keydown', () => {});
+            window.removeEventListener('popstate', () => {});
+            document.removeEventListener('visibilitychange', () => {});
+            window.removeEventListener('blur', () => {});
+        };
+    }, [preventPageDuplication, preventReload, preventUnauthorizedAccess, monitorTabFocus]);
+
+    return { handleSecurityViolation };
+};
+```
+
+**resources/js/components/SecurityWrapper.jsx:**
+```javascript
+import React, { useEffect } from 'react';
+import { useSecurityControl } from '../hooks/useSecurityControl';
+import { useAuth } from '../contexts/AuthContext';
+
+const SecurityWrapper = ({ children }) => {
+    const { user } = useAuth();
+    const { handleSecurityViolation } = useSecurityControl();
+
+    useEffect(() => {
+        // セキュリティ警告メッセージを表示
+        if (user) {
+            console.warn('This application is protected by security measures. Any unauthorized access or manipulation will result in immediate logout.');
+        }
+    }, [user]);
+
+    return <>{children}</>;
+};
+
+export default SecurityWrapper;
+```
+
+**resources/js/pages/SecurityError.jsx:**
+```javascript
+import React, { useEffect } from 'react';
+import { Box, Typography, Button, Paper } from '@mui/material';
+import { Error as ErrorIcon } from '@mui/icons-material';
+
+const SecurityError = () => {
+    useEffect(() => {
+        // セキュリティエラーページでは履歴を削除
+        window.history.replaceState(null, null, '/security-error');
+        
+        // 戻るボタンを無効化
+        window.history.pushState(null, null, '/security-error');
+        window.addEventListener('popstate', () => {
+            window.history.pushState(null, null, '/security-error');
+        });
+    }, []);
+
+    const handleReturnToLogin = () => {
+        // 全てのローカルストレージを削除
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        // ログイン画面へリダイレクト
+        window.location.href = '/login';
+    };
+
+    return (
+        <Box
+            sx={{
+                minHeight: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: '#f5f5f5',
+            }}
+        >
+            <Paper
+                elevation={3}
+                sx={{
+                    padding: 4,
+                    textAlign: 'center',
+                    maxWidth: 500,
+                    width: '90%',
+                }}
+            >
+                <ErrorIcon
+                    sx={{
+                        fontSize: 80,
+                        color: 'error.main',
+                        mb: 2,
+                    }}
+                />
+                <Typography variant="h4" gutterBottom color="error">
+                    セキュリティエラー
+                </Typography>
+                <Typography variant="body1" paragraph>
+                    セキュリティ違反が検出されました。
+                </Typography>
+                <Typography variant="body2" paragraph color="text.secondary">
+                    • 不正なページアクセス
+                    • 認証なしでのページ表示
+                    • 禁止された操作の実行
+                </Typography>
+                <Typography variant="body1" paragraph>
+                    セキュリティ保護のため、認証情報が削除されました。
+                    <br />
+                    再度ログインしてください。
+                </Typography>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    onClick={handleReturnToLogin}
+                    sx={{ mt: 2 }}
+                >
+                    ログイン画面へ戻る
+                </Button>
+            </Paper>
+        </Box>
+    );
+};
+
+export default SecurityError;
+```
+
+**resources/js/App.jsx への統合:**
+```javascript
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import SecurityWrapper from './components/SecurityWrapper';
+import ProtectedRoute from './components/ProtectedRoute';
+import Login from './pages/Login';
+import SecurityError from './pages/SecurityError';
+import StaffList from './pages/StaffList';
+// ... 他のページコンポーネント
+
+function App() {
+    return (
+        <AuthProvider>
+            <SecurityWrapper>
+                <Router>
+                    <Routes>
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/security-error" element={<SecurityError />} />
+                        <Route
+                            path="/"
+                            element={
+                                <ProtectedRoute>
+                                    <StaffList />
+                                </ProtectedRoute>
+                            }
+                        />
+                        {/* 他の保護されたルート */}
+                    </Routes>
+                </Router>
+            </SecurityWrapper>
+        </AuthProvider>
+    );
+}
+
+export default App;
+```
+
+**resources/js/components/ProtectedRoute.jsx:**
+```javascript
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+
+const ProtectedRoute = ({ children }) => {
+    const { user, loading } = useAuth();
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
+    if (!user) {
+        // 認証されていない場合、セキュリティエラーページへ
+        return <Navigate to="/security-error" replace />;
+    }
+
+    return children;
+};
+
+export default ProtectedRoute;
+```
+```
+
+### 10. バックエンド側でのセキュリティ強化
+
+**app/Http/Middleware/SecurityMiddleware.php:**
+```php
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class SecurityMiddleware
+{
+    public function handle(Request $request, Closure $next)
+    {
+        // 認証が必要なページで認証されていない場合
+        if (!Auth::check()) {
+            return response()->json([
+                'error' => 'Unauthorized access detected',
+                'redirect' => '/security-error'
+            ], 401);
+        }
+
+        // リファラーチェック（直接アクセス防止）
+        if (!$request->header('referer') && !$request->is('api/auth/*')) {
+            return response()->json([
+                'error' => 'Direct access prohibited',
+                'redirect' => '/security-error'
+            ], 403);
+        }
+
+        // User-Agentチェック
+        $userAgent = $request->header('User-Agent');
+        if (empty($userAgent) || $this->isSuspiciousUserAgent($userAgent)) {
+            return response()->json([
+                'error' => 'Suspicious access detected',
+                'redirect' => '/security-error'
+            ], 403);
+        }
+
+        return $next($request);
+    }
+
+    private function isSuspiciousUserAgent($userAgent)
+    {
+        $suspiciousPatterns = [
+            'bot',
+            'crawler',
+            'spider',
+            'scraper',
+            'curl',
+            'wget',
+            'python',
+            'perl',
+            'php',
+        ];
+
+        $userAgentLower = strtolower($userAgent);
+        foreach ($suspiciousPatterns as $pattern) {
+            if (strpos($userAgentLower, $pattern) !== false) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+```
+
+**app/Http/Controllers/SecurityController.php:**
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+
+class SecurityController extends Controller
+{
+    public function reportViolation(Request $request)
+    {
+        $user = Auth::user();
+        
+        Log::warning('Security violation reported', [
+            'user_id' => $user ? $user->id : 'guest',
+            'user_code' => $user ? $user->user_code : 'N/A',
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->header('User-Agent'),
+            'violation_type' => $request->input('type'),
+            'timestamp' => now(),
+            'url' => $request->input('url'),
+        ]);
+
+        // 現在のユーザーのトークンを全て削除
+        if ($user) {
+            $user->tokens()->delete();
+        }
+
+        // セッションを無効化
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return response()->json([
+            'message' => 'Security violation logged',
+            'redirect' => '/security-error'
+        ]);
+    }
+}
+```
+
+**routes/web.php への追加:**
+```php
+// セキュリティ関連ルート
+Route::post('/api/security/violation', [App\Http\Controllers\SecurityController::class, 'reportViolation']);
+Route::get('/security-error', function () {
+    return view('security-error');
+});
+```
+
+**app/Http/Kernel.php への追加:**
+```php
+protected $middlewareGroups = [
+    'web' => [
+        // ... 既存のミドルウェア
+    ],
+    
+    'api' => [
+        // ... 既存のミドルウェア
+        \App\Http\Middleware\SecurityMiddleware::class,
+    ],
+];
+```
+
+### 11. CSP (Content Security Policy) 設定
+
+**app/Http/Middleware/ContentSecurityPolicyMiddleware.php:**
+```php
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+
+class ContentSecurityPolicyMiddleware
+{
+    public function handle(Request $request, Closure $next)
+    {
+        $response = $next($request);
+
+        $csp = [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline'",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            "font-src 'self' https://fonts.gstatic.com",
+            "img-src 'self' data:",
+            "connect-src 'self'",
+            "frame-ancestors 'none'",
+            "base-uri 'self'",
+            "form-action 'self'",
+            "upgrade-insecure-requests",
+        ];
+
+        $response->headers->set('Content-Security-Policy', implode('; ', $csp));
+        $response->headers->set('X-Frame-Options', 'DENY');
+        $response->headers->set('X-Content-Type-Options', 'nosniff');
+        $response->headers->set('X-XSS-Protection', '1; mode=block');
+        $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+        return $response;
+    }
+}
+```
+
 ## 認証システムのカスタマイズ
 
 Laravel Breezeインストール後、user_codeでの認証に対応するため以下の設定を行います：
