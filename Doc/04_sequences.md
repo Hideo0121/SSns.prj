@@ -131,39 +131,6 @@ sequenceDiagram
         WebServer->>Browser: エラーメッセージと共に新規登録画面を再表示
     end
 ```
-
-### ④ 認証 ⇒ スタッフ検索・一覧 ⇒ 一括登録（CSVインポート）
-
-```mermaid
-sequenceDiagram
-    participant AdminUser as 管理者
-    participant Browser
-    participant WebServer as Laravel Application
-    participant Database
-
-    AdminUser->>Browser: 認証画面にアクセス (認証フローは省略)
-    Browser->>WebServer: ...
-    WebServer->>Database: ...
-    Database-->>WebServer: ...
-    WebServer->>Browser: スタッフ検索・一覧画面HTMLを返す (認証成功後)
-    AdminUser->>Browser: スタッフ検索・一覧画面から「一括登録（CSVインポート）」を選択
-    Browser->>WebServer: CSVインポート画面表示要求
-    WebServer->>Browser: CSVインポート画面HTMLを返す
-    AdminUser->>Browser: CSVファイルを選択、アップロードボタンクリック
-    Browser->>WebServer: POST /staff/import (CSVファイル)
-    WebServer->>WebServer: CSVファイルの解析とバリデーション
-    alt 解析・バリデーション成功
-        WebServer->>Database: CSVデータの一括登録を要求
-        Database-->>WebServer: 一括登録完了を通知
-        WebServer->>WebServer: メンテナンスログを記録
-        WebServer->>Database: メンテナンスログ保存
-        Database-->>WebServer: ログ保存完了
-        WebServer->>Browser: 一括登録結果(成功件数、失敗件数、エラー詳細など)を返す
-    else 解析・バリデーション失敗
-        WebServer->>Browser: エラー詳細メッセージと共にCSVインポート画面を再表示
-    end
-    Browser->>AdminUser: 一括登録結果を表示
-```
   
 ## 非同期処理とパフォーマンス最適化
 

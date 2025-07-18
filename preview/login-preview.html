@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログイン画面プレビュー - スタッフ管理システム</title>
+    
+    <!-- Material-UI CSS -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mui/material@5.14.0/umd/material-ui.min.css" />
+    
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1565c0 0%, #1976d2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            padding-top: 10vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+            padding-left: 24px;
+            padding-right: 24px;
+        }
+        .login-card {
+            background: white;
+            border-radius: 16px;
+            padding: 48px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            max-width: 400px;
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        .header {
+            background: transparent;
+            padding: 16px;
+            color: white;
+            display: flex;
+            align-items: center;
+        }
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: #fff;
+            border-radius: 50%;
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #1976d2;
+        }
+        .form-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .user-avatar {
+            width: 56px;
+            height: 56px;
+            background: #1976d2;
+            border-radius: 50%;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .form-field {
+            margin-bottom: 16px;
+            position: relative;
+        }
+        .form-field input {
+            width: 100%;
+            padding: 12px 16px 12px 48px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+            max-width: 100%;
+            overflow: hidden;
+        }
+        .form-field input:focus {
+            outline: none;
+            border-color: #1976d2;
+        }
+        .form-field .icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9e9e9e;
+        }
+        .form-field label {
+            position: absolute;
+            left: 48px;
+            top: -8px;
+            background: white;
+            padding: 0 8px;
+            color: #1976d2;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .login-button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(45deg, #1565c0 30%, #1976d2 90%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            margin-top: 24px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .login-button:hover {
+            transform: translateY(-2px);
+        }
+        .error-alert {
+            background: #ffebee;
+            border: 1px solid #ef5350;
+            color: #c62828;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 16px;
+            display: none;
+        }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            padding: 16px;
+            color: white;
+            font-size: 12px;
+        }
+        
+        /* レスポンシブ対応 */
+        @media (max-width: 768px) {
+            .container {
+                padding-left: 16px;
+                padding-right: 16px;
+                padding-top: 5vh;
+            }
+            .login-card {
+                padding: 32px 24px;
+                max-width: 100%;
+                margin: 0 16px;
+            }
+            .form-field input {
+                font-size: 16px;
+                padding: 12px 16px 12px 40px;
+            }
+            .form-field .icon {
+                left: 12px;
+            }
+            .form-field label {
+                left: 40px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 24px 16px;
+                margin: 0 8px;
+            }
+            .form-header h2 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">S</div>
+        <h1 style="margin: 0; font-size: 20px; font-weight: bold;">スタッフ管理システム</h1>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="login-card">
+            <!-- Login Form Header -->
+            <div class="form-header">
+                <div class="user-avatar">
+                    <span class="material-icons">lock</span>
+                </div>
+                <h2 style="margin: 0; color: #1565c0; font-weight: bold;">ログイン</h2>
+                <p style="color: #666; margin-top: 8px;">システムにアクセスするには認証が必要です</p>
+            </div>
+
+            <!-- Login Form -->
+            <form>
+                <div class="form-field">
+                    <label>ユーザーコード</label>
+                    <span class="material-icons icon">person</span>
+                    <input type="text" placeholder="例：user001" />
+                </div>
+                
+                <div class="form-field">
+                    <label>パスワード</label>
+                    <span class="material-icons icon">lock</span>
+                    <input type="password" placeholder="英数字を含む8文字以上" />
+                </div>
+
+                <button type="button" class="login-button" onclick="showError()">
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">login</span>
+                    ログイン
+                </button>
+            </form>
+
+            <!-- Error Alert -->
+            <div id="errorAlert" class="error-alert">
+                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">error</span>
+                ユーザーコードまたはパスワードが正しくありません
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        © 2025 スタッフ管理システム. All rights reserved.
+    </div>
+
+    <script>
+        function showError() {
+            document.getElementById('errorAlert').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

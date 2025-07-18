@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>メール送信画面プレビュー - スタッフ管理システム</title>
+    
+    <!-- Material-UI CSS -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+    
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background: #f3f7ff;
+            min-height: 100vh;
+        }
+        .header {
+            background: linear-gradient(90deg, #1565c0 0%, #1976d2 100%);
+            padding: 16px 24px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        .logo {
+            width: 32px;
+            height: 32px;
+            background: #fff;
+            border-radius: 50%;
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #1976d2;
+        }
+        .user-chip {
+            background: transparent;
+            border: 1px solid white;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            margin-right: 16px;
+        }
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            background: white;
+            color: #1976d2;
+            border-radius: 50%;
+            margin-right: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .nav-bar {
+            background: white;
+            padding: 16px 24px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+        }
+        .btn-outlined {
+            background: transparent;
+            color: #1976d2;
+            border: 2px solid #1976d2;
+        }
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        .paper {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+        .paper-header {
+            padding: 24px 32px 16px;
+            border-bottom: 2px solid #e3f2fd;
+        }
+        .paper-content {
+            padding: 24px;
+        }
+        .section-title {
+            color: #1565c0;
+            font-weight: bold;
+            margin: 0;
+            font-size: 20px;
+        }
+        .recipients-info {
+            margin-top: 16px;
+        }
+        .recipient-summary {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .chip {
+            padding: 8px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .chip-primary {
+            background: #1976d2;
+            color: white;
+        }
+        .chip-outlined {
+            background: transparent;
+            color: #1976d2;
+            border: 2px solid #1976d2;
+        }
+        .chip-small {
+            padding: 4px 12px;
+            font-size: 12px;
+            background: #e3f2fd;
+            color: #1976d2;
+            border-radius: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin: 4px;
+        }
+        .recipient-avatar {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #1976d2;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        .recipients-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .form-field {
+            margin-bottom: 16px;
+            position: relative;
+        }
+        .form-field label {
+            display: block;
+            margin-bottom: 8px;
+            color: #1565c0;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .form-field input, .form-field textarea {
+            width: 100%;
+            padding: 12px 16px 12px 48px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+            max-width: 100%;
+            overflow: hidden;
+        }
+        .form-field input:focus, .form-field textarea:focus {
+            outline: none;
+            border-color: #1976d2;
+        }
+        .form-field .icon {
+            position: absolute;
+            left: 16px;
+            top: 45px;
+            color: #9e9e9e;
+        }
+        .form-field textarea {
+            resize: vertical;
+            min-height: 200px;
+            line-height: 1.5;
+        }
+        .attachment-section {
+            margin-top: 24px;
+        }
+        .file-upload {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .file-upload input[type="file"] {
+            display: none;
+        }
+        .file-upload label {
+            background: transparent;
+            color: #1976d2;
+            border: 2px solid #1976d2;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+        .drop-zone {
+            border: 2px dashed #1976d2;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            background: #f3f7ff;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .drop-zone.drag-over {
+            background: #e3f2fd;
+            border-color: #1565c0;
+            transform: scale(1.02);
+        }
+        .drop-zone-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .drop-zone-icon {
+            font-size: 48px;
+            color: #1976d2;
+        }
+        .drop-zone-text {
+            color: #1976d2;
+            font-weight: 500;
+            font-size: 16px;
+        }
+        .drop-zone-hint {
+            color: #666;
+            font-size: 14px;
+        }
+        .attached-files {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .file-chip {
+            background: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            padding: 8px 12px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .file-chip .remove-btn {
+            background: none;
+            border: none;
+            color: #d32f2f;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Modal Dialog Styles */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-dialog {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            animation: scaleIn 0.3s ease;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1565c0;
+            margin: 0 0 16px 0;
+        }
+        .modal-content {
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        .modal-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        .modal-btn-cancel {
+            background: #f5f5f5;
+            color: #666;
+        }
+        .modal-btn-cancel:hover {
+            background: #e0e0e0;
+        }
+        .modal-btn-confirm {
+            background: #1976d2;
+            color: white;
+        }
+        .modal-btn-confirm:hover {
+            background: #1565c0;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        .preview-section {
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 24px;
+            margin-top: 16px;
+        }
+        .preview-header {
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+        }
+        .preview-label {
+            color: #666;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+        .preview-value {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+        .preview-body {
+            white-space: pre-line;
+            line-height: 1.6;
+            color: #333;
+        }
+        .divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 16px 0;
+        }
+        @media (max-width: 768px) {
+            .recipient-summary {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .file-upload {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .container {
+                padding: 16px;
+            }
+            .paper-content {
+                padding: 16px;
+            }
+            .form-field input, .form-field textarea {
+                font-size: 16px;
+                padding: 12px 16px 12px 40px;
+            }
+            .form-field .icon {
+                left: 12px;
+                top: 41px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <div class="logo">S</div>
+            <h1 style="margin: 0; font-size: 20px; font-weight: bold;">スタッフ管理システム</h1>
+        </div>
+        <div style="display: flex; align-items: center;">
+            <div class="user-chip">
+                <div class="user-avatar">山</div>
+                山田太郎 (管理者)
+            </div>
+            <button class="btn" style="background: transparent; color: white; border: 1px solid white;">
+                <span class="material-icons">logout</span>
+                ログアウト
+            </button>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+        <div class="nav-left">
+            <a href="./staff-list-preview.html" class="btn btn-outlined">
+                <span class="material-icons">arrow_back</span>
+                一覧に戻る
+            </a>
+            <h2 style="margin: 0; color: #1565c0; font-weight: bold;">メール送信</h2>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button class="btn btn-primary" onclick="sendMail()">
+                <span class="material-icons">send</span>
+                送信
+            </button>
+            <button class="btn btn-outlined" onclick="saveDraft()">
+                <span class="material-icons">save</span>
+                下書き保存
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Recipients Section -->
+        <div class="paper">
+            <div class="paper-header">
+                <h3 class="section-title">送信対象</h3>
+            </div>
+            <div class="paper-content">
+                <div class="recipients-info">
+                    <div class="recipient-summary">
+                        <div class="chip chip-primary">
+                            <span class="material-icons">people</span>
+                            選択済みスタッフ: 15名
+                        </div>
+                        <button class="btn btn-outlined" onclick="showRecipients()">
+                            <span class="material-icons">visibility</span>
+                            対象者一覧を表示
+                        </button>
+                    </div>
+                    
+                    <div class="recipients-list">
+                        <div class="chip-small">
+                            <div class="recipient-avatar">山</div>
+                            山田太郎
+                            <button style="background: none; border: none; color: #d32f2f; cursor: pointer; margin-left: 4px;">
+                                <span class="material-icons" style="font-size: 16px;">cancel</span>
+                            </button>
+                        </div>
+                        <div class="chip-small">
+                            <div class="recipient-avatar">田</div>
+                            田中花子
+                            <button style="background: none; border: none; color: #d32f2f; cursor: pointer; margin-left: 4px;">
+                                <span class="material-icons" style="font-size: 16px;">cancel</span>
+                            </button>
+                        </div>
+                        <div class="chip-small">
+                            <div class="recipient-avatar">佐</div>
+                            佐藤次郎
+                            <button style="background: none; border: none; color: #d32f2f; cursor: pointer; margin-left: 4px;">
+                                <span class="material-icons" style="font-size: 16px;">cancel</span>
+                            </button>
+                        </div>
+                        <div class="chip chip-outlined" style="cursor: pointer;" onclick="showAllRecipients()">
+                            他12名...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mail Compose Section -->
+        <div class="paper">
+            <div class="paper-header">
+                <h3 class="section-title">メール作成</h3>
+            </div>
+            <div class="paper-content">
+                <div class="form-field">
+                    <label for="subject">件名</label>
+                    <span class="material-icons icon">subject</span>
+                    <input type="text" id="subject" placeholder="件名を入力してください" value="【重要】システムメンテナンスのお知らせ" onkeyup="updatePreview()" />
+                </div>
+                
+                <div class="form-field">
+                    <label for="body">本文</label>
+                    <textarea id="body" placeholder="メール本文を入力してください" onkeyup="updatePreview()">いつもお世話になっております。
+
+下記の通り、システムメンテナンスを実施いたします。
+メンテナンス中はシステムをご利用いただけませんので、
+ご理解とご協力をお願いいたします。
+
+【メンテナンス日時】
+2025年7月20日（日）午前2:00〜午前6:00
+
+ご不明な点がございましたら、お気軽にお問い合わせください。</textarea>
+                </div>
+                
+                <div class="attachment-section">
+                    <h4 style="color: #1565c0; margin-bottom: 16px;">添付ファイル</h4>
+                    
+                    <!-- ドラッグアンドドロップゾーン -->
+                    <div class="drop-zone" id="drop-zone">
+                        <div class="drop-zone-content">
+                            <span class="material-icons drop-zone-icon">cloud_upload</span>
+                            <div class="drop-zone-text">ファイルをドラッグ＆ドロップ</div>
+                            <div class="drop-zone-hint">または下のボタンでファイルを選択</div>
+                        </div>
+                    </div>
+                    
+                    <div class="file-upload">
+                        <label for="file-input">
+                            <span class="material-icons">attach_file</span>
+                            ファイル選択
+                        </label>
+                        <input type="file" id="file-input" multiple accept=".pdf,.jpg,.jpeg,.png,.gif" />
+                        <span style="color: #666; font-size: 14px;">最大10MB、PDF・画像ファイルに対応</span>
+                    </div>
+                    
+                    <div class="attached-files">
+                        <div class="file-chip">
+                            <span class="material-icons" style="color: #d32f2f;">picture_as_pdf</span>
+                            重要なお知らせ.pdf (2.3MB)
+                            <button class="remove-btn" onclick="removeFile(this)">
+                                <span class="material-icons" style="font-size: 16px;">cancel</span>
+                            </button>
+                        </div>
+                        <div class="file-chip">
+                            <span class="material-icons" style="color: #2e7d32;">image</span>
+                            画像.jpg (1.5MB)
+                            <button class="remove-btn" onclick="removeFile(this)">
+                                <span class="material-icons" style="font-size: 16px;">cancel</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="paper">
+            <div class="paper-header">
+                <h3 class="section-title">プレビュー</h3>
+            </div>
+            <div class="paper-content">
+                <div class="preview-section">
+                    <div class="preview-header">
+                        <div class="preview-label">件名:</div>
+                        <div class="preview-value" id="preview-subject">【重要】システムメンテナンスのお知らせ</div>
+                    </div>
+                    
+                    <div class="divider"></div>
+                    
+                    <div>
+                        <div class="preview-label">本文:</div>
+                        <div class="preview-body" id="preview-body">いつもお世話になっております。
+
+下記の通り、システムメンテナンスを実施いたします。
+メンテナンス中はシステムをご利用いただけませんので、
+ご理解とご協力をお願いいたします。
+
+【メンテナンス日時】
+2025年7月20日（日）午前2:00〜午前6:00
+
+ご不明な点がございましたら、お気軽にお問い合わせください。</div>
+                    </div>
+                    
+                    <div style="margin-top: 16px;">
+                        <div class="preview-label">添付ファイル: 2件</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ファイル管理用の配列
+        let attachedFiles = [
+            { name: '重要なお知らせ.pdf', size: 2.3, type: 'pdf' },
+            { name: '画像.jpg', size: 1.5, type: 'image' }
+        ];
+
+        // ドラッグアンドドロップの設定
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('drop-zone');
+            const fileInput = document.getElementById('file-input');
+
+            // ドロップゾーンクリックでファイル選択
+            dropZone.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            // ドラッグオーバー
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('drag-over');
+            });
+
+            // ドラッグリーブ
+            dropZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+            });
+
+            // ドロップ
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+                
+                const files = Array.from(e.dataTransfer.files);
+                handleFiles(files);
+            });
+
+            // ファイル入力の変更
+            fileInput.addEventListener('change', (e) => {
+                const files = Array.from(e.target.files);
+                handleFiles(files);
+                e.target.value = ''; // 同じファイルを再選択可能にする
+            });
+        }
+
+        // ファイル処理
+        function handleFiles(files) {
+            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+            const maxSize = 10 * 1024 * 1024; // 10MB
+
+            files.forEach(file => {
+                // ファイルタイプチェック
+                if (!allowedTypes.includes(file.type)) {
+                    showMessage(`${file.name} はサポートされていないファイル形式です。PDF、JPG、PNG、GIFファイルのみ添付可能です。`, 'error');
+                    return;
+                }
+
+                // ファイルサイズチェック
+                if (file.size > maxSize) {
+                    showMessage(`${file.name} のファイルサイズが大きすぎます。最大10MBまでのファイルを選択してください。`, 'error');
+                    return;
+                }
+
+                // 重複チェック
+                if (attachedFiles.some(f => f.name === file.name)) {
+                    showMessage(`${file.name} は既に添付されています。`, 'error');
+                    return;
+                }
+
+                // ファイル追加
+                const fileInfo = {
+                    name: file.name,
+                    size: (file.size / (1024 * 1024)).toFixed(1), // MB
+                    type: file.type.startsWith('image/') ? 'image' : 'pdf',
+                    file: file
+                };
+
+                attachedFiles.push(fileInfo);
+                updateAttachedFilesList();
+                
+                // 成功メッセージ
+                showMessage(`${file.name} を添付しました`, 'success');
+            });
+        }
+
+        // 添付ファイルリストの更新
+        function updateAttachedFilesList() {
+            const container = document.querySelector('.attached-files');
+            container.innerHTML = '';
+
+            attachedFiles.forEach((fileInfo, index) => {
+                const fileChip = document.createElement('div');
+                fileChip.className = 'file-chip';
+                
+                const iconColor = fileInfo.type === 'pdf' ? '#d32f2f' : '#2e7d32';
+                const iconName = fileInfo.type === 'pdf' ? 'picture_as_pdf' : 'image';
+                
+                fileChip.innerHTML = `
+                    <span class="material-icons" style="color: ${iconColor};">${iconName}</span>
+                    ${fileInfo.name} (${fileInfo.size}MB)
+                    <button class="remove-btn" onclick="removeFileByIndex(${index})">
+                        <span class="material-icons" style="font-size: 16px;">cancel</span>
+                    </button>
+                `;
+                
+                container.appendChild(fileChip);
+            });
+
+            // プレビューの添付ファイル数を更新
+            const previewLabel = document.querySelector('.preview-label');
+            if (previewLabel) {
+                previewLabel.textContent = `添付ファイル: ${attachedFiles.length}件`;
+            }
+        }
+
+        // インデックスによるファイル削除
+        function removeFileByIndex(index) {
+            const fileName = attachedFiles[index].name;
+            attachedFiles.splice(index, 1);
+            updateAttachedFilesList();
+            showMessage(`${fileName} を削除しました`, 'info');
+        }
+
+        // メッセージ表示
+        function showMessage(message, type = 'info') {
+            const messageDiv = document.createElement('div');
+            messageDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#4caf50' : type === 'error' ? '#f44336' : '#2196f3'};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+            messageDiv.textContent = message;
+            
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(messageDiv);
+                }, 300);
+            }, 3000);
+        }
+
+        // スライドアニメーション
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        function updatePreview() {
+            const subject = document.getElementById('subject').value;
+            const body = document.getElementById('body').value;
+            
+            document.getElementById('preview-subject').textContent = subject || '（件名なし）';
+            document.getElementById('preview-body').textContent = body || '（本文なし）';
+        }
+
+        function sendMail() {
+            const recipients = 15;
+            const subject = document.getElementById('subject').value;
+            const attachmentInfo = attachedFiles.length > 0 ? `\n添付ファイル: ${attachedFiles.length}件` : '';
+            
+            showConfirmDialog(
+                'メール送信確認',
+                `メールを送信しますか？\n\n送信対象: ${recipients}名\n件名: ${subject || '（件名なし）'}${attachmentInfo}`,
+                () => {
+                    showMessage('メール送信機能は実装予定です', 'info');
+                }
+            );
+        }
+
+        function saveDraft() {
+            showMessage('下書きを保存しました', 'success');
+        }
+
+        function showRecipients() {
+            showMessage('対象者一覧表示機能は実装予定です', 'info');
+        }
+
+        function showAllRecipients() {
+            showMessage('全対象者表示機能は実装予定です', 'info');
+        }
+
+        // Modal Dialog 関数
+        function showConfirmDialog(title, message, onConfirm) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalContent').textContent = message;
+            document.getElementById('modalConfirmBtn').onclick = () => {
+                closeModal();
+                if (onConfirm) onConfirm();
+            };
+            const modal = document.getElementById('confirmModal');
+            modal.style.setProperty('display', 'flex', 'important');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('confirmModal');
+            modal.style.setProperty('display', 'none', 'important');
+        }
+
+        // ESCキーでモーダルを閉じる
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        function removeFile(button) {
+            button.closest('.file-chip').remove();
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            setupDragAndDrop();
+            updateAttachedFilesList();
+            
+            // モーダル背景クリックで閉じる
+            const modalBackdrop = document.getElementById('confirmModal');
+            if (modalBackdrop) {
+                modalBackdrop.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeModal();
+                    }
+                });
+            }
+        });
+    </script>
+
+    <!-- Confirmation Dialog -->
+    <div id="confirmModal" class="modal-backdrop" style="display: none !important;">
+        <div class="modal-dialog">
+            <h3 class="modal-title" id="modalTitle">確認</h3>
+            <div class="modal-content" id="modalContent"></div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" onclick="closeModal()">キャンセル</button>
+                <button class="modal-btn modal-btn-confirm" id="modalConfirmBtn">実行</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>テスト</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background: linear-gradient(45deg, #1565c0, #1976d2);
+            color: white;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            color: #333;
+            padding: 30px;
+            border-radius: 10px;
+            display: inline-block;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🎉 VS Code Simple Browser テスト</h1>
+        <p>このページが表示されれば正常に動作しています！</p>
+        <p>現在の時刻: <span id="time"></span></p>
+        <button onclick="alert('ボタンが動作しました！')">クリックテスト</button>
+    </div>
+
+    <script>
+        function updateTime() {
+            document.getElementById('time').textContent = new Date().toLocaleString('ja-JP');
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+</body>
+</html>
